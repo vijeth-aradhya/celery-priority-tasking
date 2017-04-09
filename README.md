@@ -7,3 +7,4 @@ To install dependencies on Debian machines, use the script provided or otherwise
 ## Tutorials
 - [Celery](https://www.fullstackpython.com/task-queues.html) [full stack python]
 - [Task Queues](https://www.fullstackpython.com/task-queues.html) [full stack python]
+- [How to integrate RabbitMQ with Celery?](http://docs.celeryproject.org/en/latest/getting-started/brokers/rabbitmq.html#broker-rabbitmq)
