@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Video Transcoding Simulation with Celery</title>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous">
+	</script>
+</head>
+<body>
+
+<h1 align="center">Celery Priority Task Understanding</h1>
+
+<h2>Transcoding one video ...</h2>
+
+<h3>Transcode the video to 360p resolution</h3>
+<button id="360p">Trancode to 360p</button>
+
+<h3>Transcode the video to 480p resolution</h3>
+<button id="480p">Trancode to 480p</button>
+
+<h3>Transcode the video to 720p resolution</h3>
+<button id="720p">Trancode to 720p</button>
+
+<h3>Transcode the video to 1080p resolution</h3>
+<button id="1080p">Trancode to 1080p</button>
+
+<h3>Transcode the video to all resolutions</h3>
+<button id="ALL">Trancode to ALL</button>
+
+<h2>Transcoding multiples videos at once to all dimensions ...</h2>
+
+<select id="numberOfVid">
+	<option value="1">1</option>
+	<option value="2">2</option>
+	<option value="3">3</option>
+	<option value="4">4</option>
+	<option value="5">5</option>
+</select>
+
+<button id="reality">Simulate!</button>
+
+<script type="text/javascript">
+	$("#360p").click(function(){
+	    $.post("/transcode360p",
+	    {},
+	    function(data, status){
+	        console.log("Data: " + data);
+	    });
+	});
+
+	$("#480p").click(function(){
+	    $.post("/transcode480p",
+	    {},
+	    function(data, status){
+	        console.log(data);
+	    });
+	});
+
+	$("#720p").click(function(){
+	    $.post("/transcode720p",
+	    {},
+	    function(data, status){
+	        console.log(data);
+	    });
+	});
+
+	$("#1080p").click(function(){
+	    $.post("/transcode1080p",
+	    {},
+	    function(data, status){
+	        console.log(data);
+	    });
+	});
+
+	$("#ALL").click(function(){
+	    $.post("/transcodeALL",
+	    {},
+	    function(data, status){
+	        console.log(data);
+	    });
+	});
+
+	$("#reality").click(function(){
+		var element = document.getElementById('numberOfVid');
+	    $.post("/transcodeMANY?numOfVids=" + element.options[element.selectedIndex].value,
+	    {},
+	    function(data, status){
+	        console.log(data);
+	    });
+	});
+</script>
+
+</body>
+</html>
