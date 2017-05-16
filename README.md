@@ -10,14 +10,23 @@ In this sample project, the powers of Celery and RabbitMQ in prioritized tasking
 
 Of course this isn't even close to the real scencario, but it's good enough to observe the prioritized tasking.
 
+## To Enable Celery's Priority Tasking
+These are the things to keep in mind to enable priority tasking without getting into trouble or unnecessary errors.
+- `'x-max-priority': 10` This argument must be provided to the queue so that RabbitMQ knows that tasks should be prioritized.
+- There is a possibility that the queue has no chance to prioritize the messages (because they get downloaded before the sorting happens). Prefetch multiplier is 4 by default.
+```
+CELERY_ACKS_LATE = True
+CELERYD_PREFETCH_MULTIPLIER = 1
+```
+
 ## Execution
 - First, go into the directory `cd celery-priority-tasking/celery_sample_project` and run `pip install -r requirements.txt`.
 - Run `python main.py` for starting up Flask.
-- Then, in another terminal, run `celery worker -c [number of workers] -A tasks --loglevel=info &`.
+- Then, in another terminal, run `celery worker -c [number of workers] -A tasks -Q tasks --loglevel=info &`.
 - Open up a browser and start simulating!
 
 ## Preview
-With 3 celery workers, there is a small preview video [here](https://youtu.be/tM82eQMa2KE)
+There is a small preview video [here](https://youtu.be/nQXO2kjGV9M) with only 1 Celery worker so that it's easy to observe the tasks getting sorted.
 
 ## Install dependencies for RabbitMQ
 To install dependencies on Debian machines, use the script provided or otherwise modify it accordingly for other operating systems.
