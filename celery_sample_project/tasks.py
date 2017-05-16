@@ -1,9 +1,21 @@
 from celery import Celery
+from kombu import Exchange, Queue
 import time
 
 celery_app = Celery('tasks', backend='amqp', broker='amqp://')
 
-# celery worker -c 3 -A tasks --loglevel=info &
+# Creating another queue with priority argument
+
+celery_app.conf.task_queues = [
+    Queue('tasks', Exchange('tasks'), routing_key='tasks',
+          queue_arguments={'x-max-priority': 10}),
+]
+
+# celery worker -c 1 -A tasks -Q tasks --loglevel=info
+# ps auxww | grep 'celery worker' | awk '{print $2}' | xargs kill
+
+# rabbitmqctl stop
+# rabbitmq-server -detached
 
 ###
 
@@ -11,7 +23,7 @@ celery_app = Celery('tasks', backend='amqp', broker='amqp://')
 # different dimensions using celery priority task queues, and actually
 # test if it is priority based.
 
-# example: transcode_360p.apply_async(priority=1)
+# example: transcode_360p.apply_async(queue='tasks', priority=1)
 
 ###
 
