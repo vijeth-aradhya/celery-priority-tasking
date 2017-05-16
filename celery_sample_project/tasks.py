@@ -2,14 +2,19 @@ from celery import Celery
 from kombu import Exchange, Queue
 import time
 
-celery_app = Celery('tasks', backend='amqp', broker='amqp://')
+# Celery Config
 
-# Creating another queue with priority argument
-
-celery_app.conf.task_queues = [
+celery_app = Celery()
+celeryconfig = {}
+celeryconfig['BROKER_URL'] = 'amqp://'
+celeryconfig['CELERY_RESULT_BACKEND'] = 'amqp://'
+celeryconfig['CELERY_QUEUES'] = (
     Queue('tasks', Exchange('tasks'), routing_key='tasks',
           queue_arguments={'x-max-priority': 10}),
-]
+)
+celeryconfig['CELERY_ACKS_LATE'] = True
+celeryconfig['CELERYD_PREFETCH_MULTIPLIER'] = 1
+celery_app.config_from_object(celeryconfig)
 
 # celery worker -c 1 -A tasks -Q tasks --loglevel=info
 # ps auxww | grep 'celery worker' | awk '{print $2}' | xargs kill
