@@ -20,7 +20,7 @@ CELERYD_PREFETCH_MULTIPLIER = 1
 ```
 
 ## Execution
-- First, go into the directory `cd celery-priority-tasking/celery_sample_project` and run `pip install -r requirements.txt`.
+- First, run `pip install -r requirements.txt` and go into the directory `cd celery-priority-tasking/celery_sample_project`.
 - Run `python main.py` for starting up Flask.
 - Then, in another terminal, run `celery worker -c [number of workers] -A tasks -Q tasks --loglevel=info &`.
 - Open up a browser and start simulating!
