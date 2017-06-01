@@ -63,3 +63,19 @@ def transcode_1080p():
     print 'BEGIN:   Video transcoding to 1080p resolution!'
     time.sleep(20)
     print 'END:   Video transcoded to 1080p resolution!'
+
+
+@celery_app.task
+def common_setup():
+    # Setting up the processor
+    print 'BEGIN:   Setup the processor!'
+    time.sleep(5)
+    print 'END:   Seting up finished'
+
+
+@celery_app.task
+def end_processing():
+    # Method which deletes queue files and ends processing
+    print 'BEGIN:   Ending the processors!'
+    time.sleep(5)
+    print 'END:    Processing ended'

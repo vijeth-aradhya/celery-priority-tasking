@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template
 from tasks import *
+from celery import group
 
 app = Flask(__name__)
 
@@ -49,10 +50,12 @@ def transcodeTo1080p():
 def transcodeToALL():
     if request.method == 'POST':
         # We will do something like this in the actual project
-        transcode_360p.apply_async(queue='tasks', priority=1)
-        transcode_480p.apply_async(queue='tasks', priority=2)
-        transcode_720p.apply_async(queue='tasks', priority=3)
-        transcode_1080p.apply_async(queue='tasks', priority=4)
+        group(
+            transcode_1080p.signature(queue='tasks', priority=1),
+            transcode_720p.signature(queue='tasks', priority=2),
+            transcode_480p.signature(queue='tasks', priority=3),
+            transcode_360p.signature(queue='tasks', priority=4)
+        ).apply_async()
         return 'Video is getting transcoded to all dimensions!'
     else:
         return 'ERROR: Wrong HTTP Method'
@@ -62,10 +65,12 @@ def transcodeToALL():
 def transcodeToMany():
     for i in range(int(request.args['numOfVids'])):
         # Real time scenario
-        transcode_1080p.apply_async(queue='tasks', priority=4)
-        transcode_720p.apply_async(queue='tasks', priority=3)
-        transcode_480p.apply_async(queue='tasks', priority=2)
-        transcode_360p.apply_async(queue='tasks', priority=1)
+        group(
+            transcode_1080p.signature(queue='tasks', priority=1),
+            transcode_720p.signature(queue='tasks', priority=2),
+            transcode_480p.signature(queue='tasks', priority=3),
+            transcode_360p.signature(queue='tasks', priority=4)
+        ).apply_async()
     return(str(request.args['numOfVids']) + ' video(s) being transcoded to all dimensions!')
 
 
