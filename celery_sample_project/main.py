@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template
 from tasks import *
-from celery import group
+from celery import group, chain
 
 app = Flask(__name__)
 
@@ -49,13 +49,19 @@ def transcodeTo1080p():
 @app.route('/transcodeALL', methods=['POST'])
 def transcodeToALL():
     if request.method == 'POST':
-        # We will do something like this in the actual project
-        group(
-            transcode_1080p.signature(queue='tasks', priority=1),
-            transcode_720p.signature(queue='tasks', priority=2),
-            transcode_480p.signature(queue='tasks', priority=3),
-            transcode_360p.signature(queue='tasks', priority=4)
-        ).apply_async()
+        # We will do something like this to simulate actual processing of a video
+        transcoding_tasks = group(
+            transcode_1080p.signature(queue='tasks', priority=1, immutable=True),
+            transcode_720p.signature(queue='tasks', priority=2, immutable=True),
+            transcode_480p.signature(queue='tasks', priority=3, immutable=True),
+            transcode_360p.signature(queue='tasks', priority=4, immutable=True)
+        )
+        main_task = chain(
+            common_setup.signature(queue='tasks', immutable=True),
+            transcoding_tasks,
+            end_processing.signature(queue='tasks', immutable=True)
+        )
+        main_task.apply_async()
         return 'Video is getting transcoded to all dimensions!'
     else:
         return 'ERROR: Wrong HTTP Method'
@@ -65,12 +71,18 @@ def transcodeToALL():
 def transcodeToMany():
     for i in range(int(request.args['numOfVids'])):
         # Real time scenario
-        group(
-            transcode_1080p.signature(queue='tasks', priority=1),
-            transcode_720p.signature(queue='tasks', priority=2),
-            transcode_480p.signature(queue='tasks', priority=3),
-            transcode_360p.signature(queue='tasks', priority=4)
-        ).apply_async()
+        transcoding_tasks = group(
+            transcode_1080p.signature(queue='tasks', priority=1, immutable=True),
+            transcode_720p.signature(queue='tasks', priority=2, immutable=True),
+            transcode_480p.signature(queue='tasks', priority=3, immutable=True),
+            transcode_360p.signature(queue='tasks', priority=4, immutable=True)
+        )
+        main_task = chain(
+            common_setup.signature(queue='tasks', immutable=True),
+            transcoding_tasks,
+            end_processing.signature(queue='tasks', immutable=True)
+        )
+        main_task.apply_async()
     return(str(request.args['numOfVids']) + ' video(s) being transcoded to all dimensions!')
 
 
