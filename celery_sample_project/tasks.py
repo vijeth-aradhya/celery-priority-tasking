@@ -7,7 +7,7 @@ import time
 celery_app = Celery()
 celeryconfig = {}
 celeryconfig['BROKER_URL'] = 'amqp://'
-celeryconfig['CELERY_RESULT_BACKEND'] = 'amqp://'
+celeryconfig['CELERY_RESULT_BACKEND'] = 'redis://localhost'
 celeryconfig['CELERY_QUEUES'] = (
     Queue('tasks', Exchange('tasks'), routing_key='tasks',
           queue_arguments={'x-max-priority': 10}),
@@ -39,6 +39,7 @@ def transcode_360p():
     print 'BEGIN:   Video transcoding to 360p resolution!'
     time.sleep(5)
     print 'END:   Video transcoded to 360p resolution!'
+    return "360p"
 
 
 @celery_app.task
@@ -47,6 +48,7 @@ def transcode_480p():
     print 'BEGIN:   Video transcoding to 480p resolution!'
     time.sleep(10)
     print 'END:   Video transcoded to 480p resolution!'
+    return "480p"
 
 
 @celery_app.task
@@ -55,6 +57,7 @@ def transcode_720p():
     print 'BEGIN:   Video transcoding to 720p resolution!'
     time.sleep(15)
     print 'END:   Video transcoded to 720p resolution!'
+    return "720p"
 
 
 @celery_app.task
@@ -63,6 +66,7 @@ def transcode_1080p():
     print 'BEGIN:   Video transcoding to 1080p resolution!'
     time.sleep(20)
     print 'END:   Video transcoded to 1080p resolution!'
+    return "1080p"
 
 
 @celery_app.task
@@ -71,6 +75,7 @@ def common_setup():
     print 'BEGIN:   Setup the processor!'
     time.sleep(5)
     print 'END:   Seting up finished'
+    return "common_setup"
 
 
 @celery_app.task
@@ -79,3 +84,4 @@ def end_processing():
     print 'BEGIN:   Ending the processors!'
     time.sleep(5)
     print 'END:    Processing ended'
+    return "end_processing"
