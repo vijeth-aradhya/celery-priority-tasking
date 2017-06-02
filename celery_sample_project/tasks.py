@@ -7,7 +7,7 @@ import time
 celery_app = Celery()
 celeryconfig = {}
 celeryconfig['BROKER_URL'] = 'amqp://'
-celeryconfig['CELERY_RESULT_BACKEND'] = 'amqp://'
+celeryconfig['CELERY_RESULT_BACKEND'] = 'redis://localhost'
 celeryconfig['CELERY_QUEUES'] = (
     Queue('tasks', Exchange('tasks'), routing_key='tasks',
           queue_arguments={'x-max-priority': 10}),
