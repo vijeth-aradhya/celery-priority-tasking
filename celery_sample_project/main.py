@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template
 from tasks import *
-from celery import group, chain
+from celery import group, chain, chord
 
 app = Flask(__name__)
 
@@ -61,7 +61,10 @@ def transcodeToALL():
             transcoding_tasks,
             end_processing.signature(queue='tasks', immutable=True)
         )
-        main_task.apply_async()
+        # main_task execution
+        # main_task.apply_async()
+        # checking chord
+        chord(transcoding_tasks)(end_processing.signature(queue='tasks', immutable=True)).apply_async()
         return 'Video is getting transcoded to all dimensions!'
     else:
         return 'ERROR: Wrong HTTP Method'
@@ -71,18 +74,16 @@ def transcodeToALL():
 def transcodeToMany():
     for i in range(int(request.args['numOfVids'])):
         # Real time scenario
-        transcoding_tasks = group(
-            transcode_1080p.signature(queue='tasks', priority=1, immutable=True),
-            transcode_720p.signature(queue='tasks', priority=2, immutable=True),
-            transcode_480p.signature(queue='tasks', priority=3, immutable=True),
-            transcode_360p.signature(queue='tasks', priority=4, immutable=True)
-        )
-        main_task = chain(
-            common_setup.signature(queue='tasks', immutable=True),
-            transcoding_tasks,
-            end_processing.signature(queue='tasks', immutable=True)
-        )
-        main_task.apply_async()
+
+        # dirty hack to get sequentialty without chain
+        common_setup.apply_async(queue='tasks', priority=6)
+        group(
+            transcode_1080p.signature(queue='tasks', priority=2),
+            transcode_720p.signature(queue='tasks', priority=3),
+            transcode_480p.signature(queue='tasks', priority=4),
+            transcode_360p.signature(queue='tasks', priority=5)
+        ).apply_async()
+        end_processing.apply_async(queue='tasks', priority=1)
     return(str(request.args['numOfVids']) + ' video(s) being transcoded to all dimensions!')
 
 
