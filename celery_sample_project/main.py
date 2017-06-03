@@ -56,7 +56,12 @@ def transcodeToALL():
             transcode_480p.signature(queue='tasks', priority=3, immutable=True),
             transcode_360p.signature(queue='tasks', priority=4, immutable=True)
         )
-        chord(transcoding_tasks)(end_processing.signature(queue='tasks', immutable=True))
+        main_task = chain(
+            common_setup.signature(queue='tasks', immutable=True),
+            transcoding_tasks,
+            end_processing.signature(queue='tasks', immutable=True)
+        )
+        main_task.apply_async()
         return 'Video is getting transcoded to all dimensions!'
     else:
         return 'ERROR: Wrong HTTP Method'
@@ -66,19 +71,18 @@ def transcodeToALL():
 def transcodeToMany():
     for i in range(int(request.args['numOfVids'])):
         # Real time scenario
-        
         transcoding_tasks = group(
             transcode_1080p.signature(queue='tasks', priority=1, immutable=True),
             transcode_720p.signature(queue='tasks', priority=2, immutable=True),
             transcode_480p.signature(queue='tasks', priority=3, immutable=True),
             transcode_360p.signature(queue='tasks', priority=4, immutable=True)
         )
-        
-        # Removing initial common_setup
-        # chord works fine with priorities but not chain :(
-        # hence -
-        chord(transcoding_tasks)(end_processing.signature(queue='tasks', immutable=True))
-
+        main_task = chain(
+            common_setup.signature(queue='tasks', immutable=True),
+            transcoding_tasks,
+            end_processing.signature(queue='tasks', immutable=True)
+        )
+        main_task.apply_async()
     return(str(request.args['numOfVids']) + ' video(s) being transcoded to all dimensions!')
 
 
