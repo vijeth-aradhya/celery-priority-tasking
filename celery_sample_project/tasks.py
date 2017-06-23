@@ -18,6 +18,7 @@ celery_app.config_from_object(celeryconfig)
 
 # celery worker -c 1 -A tasks -Q tasks --loglevel=info
 # ps auxww | grep 'celery worker' | awk '{print $2}' | xargs kill
+# amqp://jm-user1:sample@localhost/jm-vhost
 
 # rabbitmqctl stop
 # rabbitmq-server -detached
